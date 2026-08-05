@@ -1,39 +1,55 @@
 type ProductsProps = {
   search?: string;
+  category?: string;
 };
 
 const products = [
   {
     name: "Nike Air Force 1",
     school: "University of Pretoria",
+    category: "Fashion",
     price: "R850",
     image: "https://picsum.photos/400/300?1",
   },
   {
     name: "HP Laptop",
     school: "Wits University",
+    category: "Tech",
     price: "R5800",
     image: "https://picsum.photos/400/300?2",
   },
   {
     name: "Graphic Design",
     school: "TUT",
+    category: "Services",
     price: "R250",
     image: "https://picsum.photos/400/300?3",
   },
   {
     name: "iPhone 13",
+  
     school: "UJ",
+    category: "Tech",
     price: "R9500",
     image: "https://picsum.photos/400/300?4",
   },
 ];
 
-export default function Products({ search = "" }: ProductsProps) {
-  const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(search.toLowerCase())
-  );
+export default function Products({
+  search = "",
+  category = "All",
+}: ProductsProps) {
+  const filteredProducts = products.filter((product) => {
+  const matchesSearch = product.name
+    .toLowerCase()
+    .includes(search.toLowerCase());
 
+  const matchesCategory =
+    category === "All" ||
+    product.category === category;
+
+  return matchesSearch && matchesCategory;
+});
   return (
     <section className="px-8 py-24">
       <h2 className="mb-12 text-center text-4xl font-bold">

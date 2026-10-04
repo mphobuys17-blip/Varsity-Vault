@@ -126,6 +126,9 @@ export default function ProfilePage() {
   const [savingProduct, setSavingProduct] = useState(false);
   const [productMessage, setProductMessage] = useState("");
 
+  const [deletingProductId, setDeletingProductId] =
+    useState<number | null>(null);
+
   useEffect(() => {
     let mounted = true;
 
@@ -622,16 +625,13 @@ export default function ProfilePage() {
         String(formattedProduct.price)
       );
       setEditCampus(
-        formattedProduct.school ??
-          ""
+        formattedProduct.school ?? ""
       );
       setEditCategory(
-        formattedProduct.category ??
-          "Other"
+        formattedProduct.category ?? "Other"
       );
       setEditDescription(
-        formattedProduct.description ??
-          ""
+        formattedProduct.description ?? ""
       );
       setEditImage(null);
 
@@ -665,6 +665,78 @@ export default function ProfilePage() {
       );
     } finally {
       setSavingProduct(false);
+    }
+  }
+
+  async function deleteProduct(product: Product) {
+    if (deletingProductId !== null) return;
+
+    const confirmed = window.confirm(
+      `Delete "${product.name}"?\n\nThis action cannot be undone.`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setDeletingProductId(product.id);
+      setMessage("");
+
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError) {
+        throw userError;
+      }
+
+      if (!user) {
+        setMessage("You are not logged in.");
+        return;
+      }
+
+      const { error: deleteError } =
+        await supabase
+          .from("products")
+          .delete()
+          .eq("id", product.id)
+          .eq("user_id", user.id);
+
+      if (deleteError) {
+        throw deleteError;
+      }
+
+      if (
+        editingProduct?.id === product.id
+      ) {
+        cancelEditing();
+      }
+
+      setProducts(
+        (currentProducts) =>
+          currentProducts.filter(
+            (currentProduct) =>
+              currentProduct.id !== product.id
+          )
+      );
+
+      setMessage(
+        `"${product.name}" was deleted successfully.`
+      );
+    } catch (error: unknown) {
+      console.error(
+        "DELETE PRODUCT ERROR:",
+        error
+      );
+
+      setMessage(
+        getErrorMessage(
+          error,
+          "Could not delete the product."
+        )
+      );
+    } finally {
+      setDeletingProductId(null);
     }
   }
 
@@ -1081,15 +1153,40 @@ export default function ProfilePage() {
                       </p>
                     )}
 
-                    <button
-                      type="button"
-                      onClick={() =>
-                        startEditing(product)
-                      }
-                      className="mt-5 w-full rounded-2xl bg-[#14213D] px-4 py-3 text-sm font-black text-white transition hover:-translate-y-0.5"
-                    >
-                      Edit Product
-                    </button>
+                    <div className="mt-5 grid grid-cols-2 gap-3">
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          startEditing(product)
+                        }
+                        disabled={
+                          deletingProductId ===
+                          product.id
+                        }
+                        className="rounded-2xl bg-[#14213D] px-4 py-3 text-sm font-black text-white transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        Edit Product
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          deleteProduct(product)
+                        }
+                        disabled={
+                          deletingProductId ===
+                          product.id
+                        }
+                        className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-black text-red-700 transition hover:-translate-y-0.5 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        {deletingProductId ===
+                        product.id
+                          ? "Deleting..."
+                          : "Delete"}
+                      </button>
+
+                    </div>
 
                   </div>
 

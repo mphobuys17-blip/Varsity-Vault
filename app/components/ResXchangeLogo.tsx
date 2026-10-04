@@ -1,4 +1,3 @@
-
 "use client";
 
 import type { SVGProps } from "react";
@@ -13,422 +12,142 @@ export default function ResXchangeLogo({
   ...props
 }: ResXchangeLogoProps) {
   /*
-   * ============================================================
-   * COMPACT VERSION
-   * ============================================================
+   * Rebuilt to match the brand reference 1:1 (768x512 canvas).
    *
-   * Used in the navbar / smaller spaces.
-   *
-   * Keeps the recognizable:
-   * - blue exchange arrow
-   * - white X
-   * - neon-lime exchange arrow
+   * Structure of the mark (bottom -> top):
+   *   1. "/" arm of the X (white)
+   *   2. blue diagonal shaft          (passes BEHIND the "/" arm)
+   *   3. blue top arc + arrowhead     (passes IN FRONT of the "/" arm)
+   *   4. "\" arm of the X (white)
+   *   5. lime return arc + arrowhead
    */
+  const id = compact ? "rx-c" : "rx-f";
 
+  const symbol = (
+    <>
+      {/* ============ "/" arm of the X (bottom layer) ============ */}
+      <path
+        d="M286.4 315.0L399.6 223.0L381.8 201.0L268.5 292.9Z"
+        fill="#FFFFFF"
+      />
+
+      {/* ============ blue diagonal shaft (behind "/" arm) ============ */}
+      <path
+        d="M378 196L436 196L388 252L364 260Z"
+        fill={`url(#${id}-blue)`}
+      />
+
+      {/* ============ blue arc over the top ============ */}
+      <path
+        d="M285 186A90.6 90.6 0 0 1 399 157"
+        fill="none"
+        stroke={`url(#${id}-blue)`}
+        strokeWidth="25"
+        strokeLinecap="round"
+      />
+
+      {/* ============ blue arrowhead (right) ============ */}
+      <path
+        d="M396 148L444 182L396 202Z"
+        fill={`url(#${id}-blue)`}
+      />
+
+      {/* ============ "\" arm of the X (top layer) ============ */}
+      <path
+        d="M281.8 207.4L410.8 327.2L430.6 305.8L301.7 186.0Z"
+        fill="#FFFFFF"
+      />
+
+      {/* ============ lime return arc ============ */}
+      <path
+        d="M408 328A162.8 162.8 0 0 1 311 356"
+        fill="none"
+        stroke={`url(#${id}-lime)`}
+        strokeWidth="26"
+        strokeLinecap="round"
+      />
+
+      {/* ============ lime arrowhead (left) ============ */}
+      <path
+        d="M262 330L308 320L308 354Z"
+        fill={`url(#${id}-lime)`}
+      />
+    </>
+  );
+
+  const gradients = (
+    <defs>
+      <linearGradient id={`${id}-blue`} x1="0" y1="0" x2="0.55" y2="1">
+        <stop offset="0%" stopColor="#2090FF" />
+        <stop offset="100%" stopColor="#0663EE" />
+      </linearGradient>
+      <linearGradient id={`${id}-lime`} x1="0" y1="0" x2="0.35" y2="1">
+        <stop offset="0%" stopColor="#CDF92E" />
+        <stop offset="100%" stopColor="#E4FF4C" />
+      </linearGradient>
+    </defs>
+  );
+
+  /* ============ COMPACT: just the mark ============ */
   if (compact) {
     return (
       <svg
-        viewBox="0 0 170 150"
+        viewBox="255 140 210 225"
         xmlns="http://www.w3.org/2000/svg"
         role="img"
         aria-label="ResXchange"
         className={className}
         {...props}
       >
-        <defs>
-          <linearGradient
-            id="rx-blue-compact"
-            x1="0"
-            y1="0"
-            x2="1"
-            y2="1"
-          >
-            <stop offset="0%" stopColor="#2387FF" />
-            <stop offset="100%" stopColor="#0066FF" />
-          </linearGradient>
-
-          <linearGradient
-            id="rx-lime-compact"
-            x1="0"
-            y1="0"
-            x2="1"
-            y2="1"
-          >
-            <stop offset="0%" stopColor="#DFFF00" />
-            <stop offset="100%" stopColor="#B8F500" />
-          </linearGradient>
-        </defs>
-
-        {/* ======================================================
-            BLUE TOP EXCHANGE ARC
-        ====================================================== */}
-
-        <path
-          d="M35 65
-             C47 32 79 15 112 24
-             C126 28 138 36 148 48"
-          fill="none"
-          stroke="url(#rx-blue-compact)"
-          strokeWidth="8"
-          strokeLinecap="round"
-        />
-
-        {/* BLUE ARROW HEAD */}
-
-        <path
-          d="M127 23
-             L154 49
-             L118 49
-             Z"
-          fill="url(#rx-blue-compact)"
-        />
-
-        {/* ======================================================
-            BLUE DIAGONAL X SECTION
-        ====================================================== */}
-
-        <path
-          d="M92 57
-             L121 57
-             L78 103
-             L62 103
-             Z"
-          fill="url(#rx-blue-compact)"
-        />
-
-        <path
-          d="M122 57
-             L149 57
-             L91 120
-             L74 120
-             Z"
-          fill="url(#rx-blue-compact)"
-        />
-
-        {/* ======================================================
-            WHITE X
-        ====================================================== */}
-
-        <path
-          d="M35 48
-             L61 48
-             L133 119
-             L106 119
-             Z"
-          fill="#FFFFFF"
-        />
-
-        <path
-          d="M128 48
-             L151 48
-             L74 126
-             L49 126
-             Z"
-          fill="#FFFFFF"
-        />
-
-        {/* ======================================================
-            LIME BOTTOM EXCHANGE ARC
-        ====================================================== */}
-
-        <path
-          d="M133 105
-             C120 132 89 143 59 134
-             C47 130 37 124 28 114"
-          fill="none"
-          stroke="url(#rx-lime-compact)"
-          strokeWidth="8"
-          strokeLinecap="round"
-        />
-
-        {/* LIME ARROW HEAD */}
-
-        <path
-          d="M40 104
-             L18 113
-             L43 135
-             Z"
-          fill="url(#rx-lime-compact)"
-        />
+        {gradients}
+        {symbol}
       </svg>
     );
   }
 
-  /*
-   * ============================================================
-   * FULL LOGO
-   * ============================================================
-   *
-   * Designed around the supplied ResXchange reference:
-   *
-   * RES  [X / exchange symbol]  CHANGE
-   *
-   * with the tagline underneath.
-   */
-
+  /* ============ FULL LOGO ============ */
   return (
     <svg
-      viewBox="0 0 1000 430"
+      viewBox="0 0 768 512"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
       aria-label="ResXchange — Swap. Sell. Connect."
       className={className}
       {...props}
     >
-      <defs>
-        {/* ======================================================
-            BLUE GRADIENT
-        ====================================================== */}
+      {gradients}
 
-        <linearGradient
-          id="rx-blue"
-          x1="0"
-          y1="0"
-          x2="1"
-          y2="1"
-        >
-          <stop offset="0%" stopColor="#2387FF" />
-          <stop offset="55%" stopColor="#0877FF" />
-          <stop offset="100%" stopColor="#0062FF" />
-        </linearGradient>
+      {/* brand navy */}
+      <rect width="768" height="512" fill="#031334" />
 
-        {/* ======================================================
-            LIME GRADIENT
-        ====================================================== */}
-
-        <linearGradient
-          id="rx-lime"
-          x1="0"
-          y1="0"
-          x2="1"
-          y2="1"
-        >
-          <stop offset="0%" stopColor="#E4FF19" />
-          <stop offset="55%" stopColor="#CFFF00" />
-          <stop offset="100%" stopColor="#B8F500" />
-        </linearGradient>
-
-        {/* ======================================================
-            SUBTLE WHITE SHADOW
-        ====================================================== */}
-
-        <filter
-          id="rx-shadow"
-          x="-20%"
-          y="-20%"
-          width="140%"
-          height="140%"
-        >
-          <feDropShadow
-            dx="0"
-            dy="3"
-            stdDeviation="3"
-            floodColor="#000000"
-            floodOpacity="0.16"
-          />
-        </filter>
-      </defs>
-
-      {/* ========================================================
-          BRAND WORDMARK
-      ======================================================== */}
-
+      {/* ============ wordmark ============ */}
       <g
-        fontFamily="Arial Black, Helvetica Neue, Arial, sans-serif"
         fontStyle="italic"
         fontWeight="900"
+        fontFamily="'Arial Black','Helvetica Neue',Arial,sans-serif"
         fill="#FFFFFF"
-        letterSpacing="-8"
-        filter="url(#rx-shadow)"
       >
-        {/* RES */}
-
-        <text
-          x="48"
-          y="246"
-          fontSize="154"
-        >
+        <text x="78" y="288" fontSize="100" textLength="189">
           Res
         </text>
-
-        {/* CHANGE */}
-
-        <text
-          x="536"
-          y="246"
-          fontSize="142"
-          letterSpacing="-7"
-        >
+        <text x="432" y="288" fontSize="95" textLength="286">
           change
         </text>
       </g>
 
-      {/* ========================================================
-          EXCHANGE SYMBOL
-      ======================================================== */}
+      {/* ============ the exchange symbol ============ */}
+      {symbol}
 
-      <g filter="url(#rx-shadow)">
-        {/* ======================================================
-            BLUE TOP ARC
-        ====================================================== */}
-
-        <path
-          d="
-            M327 143
-            C347 91 397 61 451 66
-            C481 69 509 82 531 103
-          "
-          fill="none"
-          stroke="url(#rx-blue)"
-          strokeWidth="11"
-          strokeLinecap="round"
-        />
-
-        {/* ======================================================
-            BLUE TOP ARROW HEAD
-        ====================================================== */}
-
-        <path
-          d="
-            M507 70
-            L548 108
-            L493 108
-            Z
-          "
-          fill="url(#rx-blue)"
-        />
-
-        {/* ======================================================
-            BLUE INNER EXCHANGE STROKE
-        ====================================================== */}
-
-        <path
-          d="
-            M435 119
-            L502 119
-            L452 170
-            L422 199
-            L393 199
-            Z
-          "
-          fill="url(#rx-blue)"
-        />
-
-        <path
-          d="
-            M488 119
-            L536 119
-            L458 201
-            L427 233
-            L397 233
-            Z
-          "
-          fill="url(#rx-blue)"
-        />
-
-        {/* ======================================================
-            MAIN WHITE X — LEFT TO RIGHT
-        ====================================================== */}
-
-        <path
-          d="
-            M327 121
-            L369 121
-            L497 251
-            L452 251
-            Z
-          "
-          fill="#FFFFFF"
-        />
-
-        {/* ======================================================
-            MAIN WHITE X — RIGHT TO LEFT
-        ====================================================== */}
-
-        <path
-          d="
-            M489 121
-            L530 121
-            L397 260
-            L356 260
-            Z
-          "
-          fill="#FFFFFF"
-        />
-
-        {/* ======================================================
-            SMALL BLUE INNER X ACCENT
-        ====================================================== */}
-
-        <path
-          d="
-            M427 170
-            L451 146
-            L466 161
-            L442 185
-            Z
-          "
-          fill="url(#rx-blue)"
-        />
-
-        {/* ======================================================
-            LIME BOTTOM ARC
-        ====================================================== */}
-
-        <path
-          d="
-            M494 245
-            C475 286 426 306 379 298
-            C348 293 322 276 303 255
-          "
-          fill="none"
-          stroke="url(#rx-lime)"
-          strokeWidth="11"
-          strokeLinecap="round"
-        />
-
-        {/* ======================================================
-            LIME BOTTOM ARROW HEAD
-        ====================================================== */}
-
-        <path
-          d="
-            M321 245
-            L286 257
-            L324 291
-            Z
-          "
-          fill="url(#rx-lime)"
-        />
-      </g>
-
-      {/* ========================================================
-          TAGLINE
-      ======================================================== */}
-
+      {/* ============ tagline ============ */}
       <g
-        fontFamily="Arial, Helvetica, sans-serif"
+        fontFamily="Arial,'Helvetica Neue',sans-serif"
         fontWeight="800"
-        fontSize="25"
-        letterSpacing="10"
+        fontSize="16"
       >
-        {/* SWAP. SELL. */}
-
-        <text
-          x="274"
-          y="340"
-          fill="#FFFFFF"
-        >
+        <text x="195" y="394" fill="#FFFFFF" textLength="186">
           SWAP. SELL.
         </text>
-
-        {/* CONNECT. */}
-
-        <text
-          x="563"
-          y="340"
-          fill="#2387FF"
-        >
+        <text x="405" y="394" fill="#0E66E3" textLength="140">
           CONNECT.
         </text>
       </g>

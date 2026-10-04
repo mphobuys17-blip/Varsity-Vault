@@ -7,17 +7,18 @@ import { useRouter } from "next/navigation";
 import { supabase } from "../utils/supabase/client";
 import ResXchangeLogo from "../components/ResXchangeLogo";
 
-export default function LoginPage() {
+export default function SignupPage() {
   const router = useRouter();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  async function handleLogin(
+  async function handleSignup(
     e: FormEvent<HTMLFormElement>
   ) {
     e.preventDefault();
@@ -26,13 +27,27 @@ export default function LoginPage() {
 
     setErrorMessage("");
     setSuccessMessage("");
+
+    if (password.length < 6) {
+      setErrorMessage(
+        "Your password must be at least 6 characters."
+      );
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setErrorMessage(
+        "Your passwords do not match."
+      );
+      return;
+    }
+
     setLoading(true);
 
-    const { error } =
-      await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password,
-      });
+    const { error } = await supabase.auth.signUp({
+      email: email.trim(),
+      password,
+    });
 
     if (error) {
       setErrorMessage(error.message);
@@ -41,13 +56,14 @@ export default function LoginPage() {
     }
 
     setSuccessMessage(
-      "Logged in successfully."
+      "Account created successfully. Check your email to confirm your account."
     );
 
+    setLoading(false);
+
     setTimeout(() => {
-      router.push("/");
-      router.refresh();
-    }, 500);
+      router.push("/login");
+    }, 1500);
   }
 
   return (
@@ -68,29 +84,29 @@ export default function LoginPage() {
           </Link>
         </div>
 
-        {/* LOGIN CARD */}
+        {/* SIGN UP CARD */}
 
         <div className="rounded-3xl border border-[#14213D]/10 bg-white p-6 shadow-xl sm:p-8">
 
           <div className="text-center">
 
             <p className="text-sm font-black uppercase tracking-[0.2em] text-[#3A86FF]">
-              Welcome back
+              Join ResXchange
             </p>
 
             <h1 className="mt-2 text-3xl font-black tracking-tight text-[#14213D] sm:text-4xl">
-              Log in to ResXchange
+              Create your account
             </h1>
 
             <p className="mt-3 text-sm leading-6 text-[#14213D]/60">
-              Sign in to manage your profile, sell products, and connect with
-              other students.
+              Create an account to sell products, manage your profile, and
+              connect with other students.
             </p>
 
           </div>
 
           <form
-            onSubmit={handleLogin}
+            onSubmit={handleSignup}
             className="mt-8 space-y-5"
           >
 
@@ -139,8 +155,35 @@ export default function LoginPage() {
                 onChange={(e) =>
                   setPassword(e.target.value)
                 }
-                placeholder="Enter your password"
-                autoComplete="current-password"
+                placeholder="At least 6 characters"
+                autoComplete="new-password"
+                required
+                disabled={loading}
+                className="w-full rounded-2xl border border-[#14213D]/15 bg-[#FFF9EF] px-4 py-3.5 text-[#14213D] outline-none transition placeholder:text-[#14213D]/35 focus:border-[#3A86FF] focus:ring-2 focus:ring-[#3A86FF]/20 disabled:cursor-not-allowed disabled:opacity-60"
+              />
+
+            </div>
+
+            {/* CONFIRM PASSWORD */}
+
+            <div>
+
+              <label
+                htmlFor="confirmPassword"
+                className="mb-2 block text-sm font-bold text-[#14213D]"
+              >
+                Confirm password
+              </label>
+
+              <input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) =>
+                  setConfirmPassword(e.target.value)
+                }
+                placeholder="Enter your password again"
+                autoComplete="new-password"
                 required
                 disabled={loading}
                 className="w-full rounded-2xl border border-[#14213D]/15 bg-[#FFF9EF] px-4 py-3.5 text-[#14213D] outline-none transition placeholder:text-[#14213D]/35 focus:border-[#3A86FF] focus:ring-2 focus:ring-[#3A86FF]/20 disabled:cursor-not-allowed disabled:opacity-60"
@@ -164,7 +207,7 @@ export default function LoginPage() {
             {successMessage && (
               <div
                 role="status"
-                className="rounded-2xl border border-[#B8F500]/40 bg-[#B8F500]/15 px-4 py-3 text-sm font-bold text-[#14213D]"
+                className="rounded-2xl border border-[#B8F500]/40 bg-[#B8F500]/15 px-4 py-3 text-sm font-bold leading-6 text-[#14213D]"
               >
                 {successMessage}
               </div>
@@ -178,23 +221,28 @@ export default function LoginPage() {
               className="w-full rounded-2xl bg-[#14213D] px-5 py-4 font-black text-white transition hover:bg-[#1d3153] focus:outline-none focus:ring-2 focus:ring-[#3A86FF] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading
-                ? "Logging in..."
-                : "Log In"}
+                ? "Creating account..."
+                : "Create Account"}
             </button>
 
           </form>
-          <div className="mt-6 text-center">
-  <p className="text-sm text-[#14213D]/60">
-    Don't have an account?
-  </p>
 
-  <Link
-    href="/signup"
-    className="mt-1 inline-block text-sm font-black text-[#3A86FF] transition hover:text-[#14213D]"
-  >
-    Create an account
-  </Link>
-</div>
+          {/* LOGIN LINK */}
+
+          <div className="mt-6 text-center">
+
+            <p className="text-sm text-[#14213D]/60">
+              Already have an account?
+            </p>
+
+            <Link
+              href="/login"
+              className="mt-1 inline-block text-sm font-black text-[#3A86FF] transition hover:text-[#14213D]"
+            >
+              Log in
+            </Link>
+
+          </div>
 
         </div>
 
@@ -215,3 +263,4 @@ export default function LoginPage() {
     </main>
   );
 }
+

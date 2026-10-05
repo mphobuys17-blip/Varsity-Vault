@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -10,6 +9,7 @@ import ResXchangeLogo from "../components/ResXchangeLogo";
 export default function SignupPage() {
   const router = useRouter();
 
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -18,9 +18,7 @@ export default function SignupPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  async function handleSignup(
-    e: FormEvent<HTMLFormElement>
-  ) {
+  async function handleSignup(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     if (loading) return;
@@ -28,25 +26,46 @@ export default function SignupPage() {
     setErrorMessage("");
     setSuccessMessage("");
 
-    if (password.length < 6) {
+    const cleanUsername = username.trim().toLowerCase();
+    const cleanEmail = email.trim();
+
+    if (cleanUsername.length < 3) {
+      setErrorMessage("Your username must be at least 3 characters.");
+      return;
+    }
+
+    if (cleanUsername.length > 30) {
+      setErrorMessage("Your username must be 30 characters or less.");
+      return;
+    }
+
+    if (!/^[a-z0-9_]+$/.test(cleanUsername)) {
       setErrorMessage(
-        "Your password must be at least 6 characters."
+        "Username can only contain letters, numbers, and underscores."
       );
       return;
     }
 
+    if (password.length < 6) {
+      setErrorMessage("Your password must be at least 6 characters.");
+      return;
+    }
+
     if (password !== confirmPassword) {
-      setErrorMessage(
-        "Your passwords do not match."
-      );
+      setErrorMessage("Your passwords do not match.");
       return;
     }
 
     setLoading(true);
 
-    const { error } = await supabase.auth.signUp({
-      email: email.trim(),
+    const { data, error } = await supabase.auth.signUp({
+      email: cleanEmail,
       password,
+      options: {
+        data: {
+          username: cleanUsername,
+        },
+      },
     });
 
     if (error) {
@@ -55,15 +74,38 @@ export default function SignupPage() {
       return;
     }
 
-    setSuccessMessage(
-      "Account created successfully. Check your email to confirm your account."
+    if (!data.user) {
+      setErrorMessage("Account could not be created. Please try again.");
+      setLoading(false);
+      return;
+    }
+
+    /*
+     * Save the username to the user's ResXchange profile.
+     */
+    const { error: profileError } = await supabase.from("profiles").upsert(
+      {
+        id: data.user.id,
+        email: cleanEmail,
+        username: cleanUsername,
+      },
+      {
+        onConflict: "id",
+      }
     );
+
+    if (profileError) {
+      console.error("Profile creation error:", profileError);
+    }
+
+    setSuccessMessage("Account created! Welcome to ResXchange.");
 
     setLoading(false);
 
     setTimeout(() => {
-      router.push("/login");
-    }, 1500);
+      router.push("/");
+      router.refresh();
+    }, 800);
   }
 
   return (
@@ -73,23 +115,15 @@ export default function SignupPage() {
         {/* LOGO */}
 
         <div className="mb-8 flex justify-center">
-          <Link
-            href="/"
-            aria-label="ResXchange home"
-          >
-            <ResXchangeLogo
-              compact
-              className="h-14 w-auto"
-            />
+          <Link href="/" aria-label="ResXchange home">
+            <ResXchangeLogo compact className="h-14 w-auto" />
           </Link>
         </div>
 
         {/* SIGN UP CARD */}
 
         <div className="rounded-3xl border border-[#14213D]/10 bg-white p-6 shadow-xl sm:p-8">
-
           <div className="text-center">
-
             <p className="text-sm font-black uppercase tracking-[0.2em] text-[#3A86FF]">
               Join ResXchange
             </p>
@@ -102,18 +136,47 @@ export default function SignupPage() {
               Create an account to sell products, manage your profile, and
               connect with other students.
             </p>
-
           </div>
 
-          <form
-            onSubmit={handleSignup}
-            className="mt-8 space-y-5"
-          >
+          <form onSubmit={handleSignup} className="mt-8 space-y-5">
+
+            {/* USERNAME */}
+
+            <div>
+              <label
+                htmlFor="username"
+                className="mb-2 block text-sm font-bold text-[#14213D]"
+              >
+                Username
+              </label>
+
+              <input
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) =>
+                  setUsername(
+                    e.target.value
+                      .toLowerCase()
+                      .replace(/[^a-z0-9_]/g, "")
+                  )
+                }
+                placeholder="your_username"
+                autoComplete="username"
+                maxLength={30}
+                required
+                disabled={loading}
+                className="w-full rounded-2xl border border-[#14213D]/15 bg-[#FFF9EF] px-4 py-3.5 text-[#14213D] outline-none transition placeholder:text-[#14213D]/35 focus:border-[#3A86FF] focus:ring-2 focus:ring-[#3A86FF]/20 disabled:cursor-not-allowed disabled:opacity-60"
+              />
+
+              <p className="mt-2 text-xs font-medium text-[#14213D]/45">
+                3–30 characters · letters, numbers, and underscores
+              </p>
+            </div>
 
             {/* EMAIL */}
 
             <div>
-
               <label
                 htmlFor="email"
                 className="mb-2 block text-sm font-bold text-[#14213D]"
@@ -125,22 +188,18 @@ export default function SignupPage() {
                 id="email"
                 type="email"
                 value={email}
-                onChange={(e) =>
-                  setEmail(e.target.value)
-                }
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
                 autoComplete="email"
                 required
                 disabled={loading}
                 className="w-full rounded-2xl border border-[#14213D]/15 bg-[#FFF9EF] px-4 py-3.5 text-[#14213D] outline-none transition placeholder:text-[#14213D]/35 focus:border-[#3A86FF] focus:ring-2 focus:ring-[#3A86FF]/20 disabled:cursor-not-allowed disabled:opacity-60"
               />
-
             </div>
 
             {/* PASSWORD */}
 
             <div>
-
               <label
                 htmlFor="password"
                 className="mb-2 block text-sm font-bold text-[#14213D]"
@@ -152,22 +211,18 @@ export default function SignupPage() {
                 id="password"
                 type="password"
                 value={password}
-                onChange={(e) =>
-                  setPassword(e.target.value)
-                }
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="At least 6 characters"
                 autoComplete="new-password"
                 required
                 disabled={loading}
                 className="w-full rounded-2xl border border-[#14213D]/15 bg-[#FFF9EF] px-4 py-3.5 text-[#14213D] outline-none transition placeholder:text-[#14213D]/35 focus:border-[#3A86FF] focus:ring-2 focus:ring-[#3A86FF]/20 disabled:cursor-not-allowed disabled:opacity-60"
               />
-
             </div>
 
             {/* CONFIRM PASSWORD */}
 
             <div>
-
               <label
                 htmlFor="confirmPassword"
                 className="mb-2 block text-sm font-bold text-[#14213D]"
@@ -179,16 +234,13 @@ export default function SignupPage() {
                 id="confirmPassword"
                 type="password"
                 value={confirmPassword}
-                onChange={(e) =>
-                  setConfirmPassword(e.target.value)
-                }
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Enter your password again"
                 autoComplete="new-password"
                 required
                 disabled={loading}
                 className="w-full rounded-2xl border border-[#14213D]/15 bg-[#FFF9EF] px-4 py-3.5 text-[#14213D] outline-none transition placeholder:text-[#14213D]/35 focus:border-[#3A86FF] focus:ring-2 focus:ring-[#3A86FF]/20 disabled:cursor-not-allowed disabled:opacity-60"
               />
-
             </div>
 
             {/* ERROR */}
@@ -220,17 +272,13 @@ export default function SignupPage() {
               disabled={loading}
               className="w-full rounded-2xl bg-[#14213D] px-5 py-4 font-black text-white transition hover:bg-[#1d3153] focus:outline-none focus:ring-2 focus:ring-[#3A86FF] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {loading
-                ? "Creating account..."
-                : "Create Account"}
+              {loading ? "Creating account..." : "Create Account"}
             </button>
-
           </form>
 
           {/* LOGIN LINK */}
 
           <div className="mt-6 text-center">
-
             <p className="text-sm text-[#14213D]/60">
               Already have an account?
             </p>
@@ -241,26 +289,21 @@ export default function SignupPage() {
             >
               Log in
             </Link>
-
           </div>
-
         </div>
 
         {/* BACK */}
 
         <div className="mt-6 text-center">
-
           <Link
             href="/"
             className="text-sm font-bold text-[#14213D]/50 transition hover:text-[#14213D]"
           >
             ← Back to marketplace
           </Link>
-
         </div>
 
       </div>
     </main>
   );
 }
-

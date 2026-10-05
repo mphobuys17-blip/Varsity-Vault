@@ -286,7 +286,7 @@ export default function HomePage() {
           <div
             className={`overflow-hidden transition-all duration-500 ease-in-out ${
               mobileMenuOpen
-                ? "max-h-[600px] opacity-100"
+                ? "max-h-[700px] opacity-100"
                 : "pointer-events-none max-h-0 opacity-0"
             }`}
           >
@@ -649,7 +649,6 @@ export default function HomePage() {
             "TSHWANE UNIVERSITY OF TECHNOLOGY",
             "UNISA",
             "NORTH-WEST UNIVERSITY",
-
             "UNIVERSITY OF PRETORIA",
             "WITS UNIVERSITY",
             "UNIVERSITY OF JOHANNESBURG",
@@ -657,10 +656,7 @@ export default function HomePage() {
             "UNISA",
             "NORTH-WEST UNIVERSITY",
           ].map((school, index) => (
-            <div
-              key={`${school}-${index}`}
-              className="flex items-center"
-            >
+            <div key={`${school}-${index}`} className="flex items-center">
               <span className="mx-8 text-sm font-black tracking-[0.2em]">
                 {school}
               </span>
